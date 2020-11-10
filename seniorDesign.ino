@@ -1,6 +1,6 @@
 #include <Servo.h>
 #include <Wire.h>
-#include <Adafruit_sensor.h>
+#include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
@@ -24,17 +24,17 @@ void bnoCalibrate(){
         while(1);
     }
     //calibrate the sensor
-    uint8_t sys, gyro, accel, mag;
+    uint8_t *sys, *gyro, *accel, *mag;
     sys = gyro = accel = mag = 0;
     bno.getCalibration(sys, gyro, accel, mag);
     //While waiting for calibration of gyro
-    while(!gyro || !sys){
+    while(!(*gyro) || !(*sys)){
         Serial.print("Waiting for calibration");
         delay(15);
     }
     //print final calibration status on gyro
     Serial.print("Gyro Calibration Status:");
-    Serial.print(gyro, DEC);
+    Serial.print(*gyro, DEC);
 
     //use external crystal for faster readings
     bno.setExtCrystalUse(true);
@@ -61,30 +61,24 @@ void setup() {
 void loop() {
     int pitchVal, rollVal;
 //    int yawVal;
-    pitchVal = 90;
-    rollVal = 90;
+
     while(true){
         //get euler vectors
         imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
 
-//        int yawTemp = map(euler.x(), 0, 360, 0, 180);
-        int rollTemp = map(euler.y(), -90, 90, 0, 180);
-        int pitchTemp = map(euler.z(), -180, 180, 0, 180);
+//        yawVal = map(euler.x(), 0, 360, 0, 180);
+        rollVal = map(euler.y(), -90, 90, 0, 180);
+        pitchVal = map(euler.z(), -180, 180, 0, 180);
 
-        //for debugging purposes
         Serial.print("Roll: ");
         Serial.print(rollVal, DEC);
         Serial.print("Pitch: ");
         Serial.print(pitchVal, DEC);
 
-        //subtract current from angle to keep level
-        pitch.write(pitchVal-pitchTemp);
-        roll.write(rollVal-rollTemp);
-        pitchVal = pitchTemp;
-        rollVal = rollTemp;
-
+        pitch.write(pitchVal);
+        roll.write(rollVal);
         //delay for servos to turn
-        delay(15)
+        delay(15);
 
         delay(BNO055_SAMPLERATE_DELAY_MS);
     }
