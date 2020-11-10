@@ -61,22 +61,28 @@ void setup() {
 void loop() {
     int pitchVal, rollVal;
 //    int yawVal;
-
+    pitchVal = 90;
+    rollVal = 90;
     while(true){
         //get euler vectors
         imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
 
-//        yawVal = map(euler.x(), 0, 360, 0, 180);
-        rollVal = map(euler.y(), -90, 90, 0, 180);
-        pitchVal = map(euler.z(), -180, 180, 0, 180);
+//        int yawTemp = map(euler.x(), 0, 360, 0, 180);
+        int rollTemp = map(euler.y(), -90, 90, 0, 180);
+        int pitchTemp = map(euler.z(), -180, 180, 0, 180);
 
+        //for debugging purposes
         Serial.print("Roll: ");
         Serial.print(rollVal, DEC);
         Serial.print("Pitch: ");
         Serial.print(pitchVal, DEC);
 
-        pitch.write(pitchVal);
-        roll.write(rollVal);
+        //subtract current from angle to keep level
+        pitch.write(pitchVal-pitchTemp);
+        roll.write(rollVal-rollTemp);
+        pitchVal = pitchTemp;
+        rollVal = rollTemp;
+
         //delay for servos to turn
         delay(15)
 
