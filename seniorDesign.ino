@@ -4,11 +4,12 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
-#define BNO055_SAMPLERATE_DELAY_MS 100
+#define BNO055_SAMPLERATE_DELAY_MS 50
 
 //Digital pin numbers for pitch and roll
 #define PITCH_PIN 2
 #define ROLL_PIN 3
+#define THRESHOLD 4
 
 //Initalize bno and servo motors
 Adafruit_BNO055 bno = Adafruit_BNO055(-1,0x28);
@@ -56,12 +57,13 @@ void loop() {
         Serial.print("Pitch: ");
         Serial.print(pitchVal, DEC);
 
-        pitch.write(-1*pitchVal);
-        roll.write(-1*rollVal);
+        //Threshold so not getting perfectly to 0 everytime
+        if(pitchVal > THRESHOLD || rollVal > THRESHOLD){
+            pitch.write(-1*(pitchVal-60));
+            roll.write(-1*(rollVal-60));
+        }
 
         //delay for servos to turn and bno055 sensor
         delay(BNO055_SAMPLERATE_DELAY_MS);
     }
-
-
 }
