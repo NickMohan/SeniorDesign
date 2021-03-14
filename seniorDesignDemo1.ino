@@ -8,19 +8,17 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
-#define BNO055_SAMPLERATE_DELAY_MS 100
+#define BNO055_SAMPLERATE_DELAY_MS 50
 
 //Digital pin numbers for pitch and roll
 #define PITCH_PIN 2
 #define ROLL_PIN 3
-#define THRESHOLD 5
-
+#define THRESHOLD 4
 
 //Initalize bno and servo motors
 Adafruit_BNO055 bno = Adafruit_BNO055(55,0x28);
 Servo pitch;
 Servo roll;
-
 
 void bnoCalibrate(){
     Serial.print("hello");
@@ -46,7 +44,6 @@ void bnoCalibrate(){
 
     //use external crystal for faster readings
     bno.setExtCrystalUse(true);
-
 }
 
 void servoCalibrate(){
@@ -54,10 +51,9 @@ void servoCalibrate(){
     pitch.attach(PITCH_PIN);
     roll.attach(ROLL_PIN);
     //Set servos to neutral position (aka flat)
-    pitch.write(90);
-    roll.write(90);
+    pitch.write(60);
+    roll.write(60);
 }
-
 
 void setup() {
     delay(1000);
@@ -69,6 +65,7 @@ void setup() {
 
 void loop() {
     int pitchVal, rollVal;
+
     while(true){
         //get euler vectors
         imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
@@ -83,7 +80,6 @@ void loop() {
         Serial.print(euler.z());
         Serial.println(pitchVal, DEC);
 
-
         if(pitchVal > THRESHOLD || rollVal > THRESHOLD){
           pitch.write(90+euler.z());
           roll.write(rollVal);
@@ -91,8 +87,8 @@ void loop() {
         //delay for servos to turn
         delay(15);
 
+        //delay for servos to turn and bno055 sensor
         delay(BNO055_SAMPLERATE_DELAY_MS);
     }
-
 }
 
