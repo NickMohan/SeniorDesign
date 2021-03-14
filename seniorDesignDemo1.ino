@@ -1,3 +1,7 @@
+#include <SharpIR.h>
+
+#include <x10.h>
+
 #include <Servo.h>
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
@@ -9,15 +13,18 @@
 //Digital pin numbers for pitch and roll
 #define PITCH_PIN 2
 #define ROLL_PIN 3
+#define THRESHOLD 5
 
 
 //Initalize bno and servo motors
-Adafruit_BNO055 bno = Adafruit_BNO055(-1,0x28);
+Adafruit_BNO055 bno = Adafruit_BNO055(55,0x28);
 Servo pitch;
 Servo roll;
 
 
 void bnoCalibrate(){
+    Serial.print("hello");
+
     //check to make sure sensor is detected
     if(!bno.begin()){
         Serial.print("BNO055 not detected");
@@ -26,15 +33,16 @@ void bnoCalibrate(){
     //calibrate the sensor
     uint8_t *sys, *gyro, *accel, *mag;
     sys = gyro = accel = mag = 0;
-    bno.getCalibration(sys, gyro, accel, mag);
+    Serial.print("Get Calibration");
+    //bno.getCalibration(sys, gyro, accel, mag);
     //While waiting for calibration of gyro
-    while(!(*gyro) || !(*sys)){
+   /* while(!(*gyro) || !(*sys)){
         Serial.print("Waiting for calibration");
         delay(15);
     }
     //print final calibration status on gyro
     Serial.print("Gyro Calibration Status:");
-    Serial.print(*gyro, DEC);
+    Serial.print(*gyro, DEC);*/
 
     //use external crystal for faster readings
     bno.setExtCrystalUse(true);
@@ -52,6 +60,7 @@ void servoCalibrate(){
 
 
 void setup() {
+    delay(1000);
     //initalize serial monitor at 9600 baud
     Serial.begin(9600);
     servoCalibrate();
@@ -60,28 +69,30 @@ void setup() {
 
 void loop() {
     int pitchVal, rollVal;
-//    int yawVal;
-
     while(true){
         //get euler vectors
         imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
 
-//        yawVal = map(euler.x(), 0, 360, 0, 180);
         rollVal = map(euler.y(), -90, 90, 0, 180);
-        pitchVal = map(euler.z(), -180, 180, 0, 180);
+        //pitchVal = map(euler.z(), -180, 180, 0, 180);
 
+        Serial.println();
         Serial.print("Roll: ");
-        Serial.print(rollVal, DEC);
+        Serial.println(rollVal, DEC);
         Serial.print("Pitch: ");
-        Serial.print(pitchVal, DEC);
+        Serial.print(euler.z());
+        Serial.println(pitchVal, DEC);
 
-        pitch.write(pitchVal);
-        roll.write(rollVal);
+
+        if(pitchVal > THRESHOLD || rollVal > THRESHOLD){
+          pitch.write(90+euler.z());
+          roll.write(rollVal);
+        }
         //delay for servos to turn
         delay(15);
 
         delay(BNO055_SAMPLERATE_DELAY_MS);
     }
 
-
 }
+
