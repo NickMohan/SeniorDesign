@@ -9,6 +9,6 @@ outFile = open(filePath, "w+")
 s = serial.Serial(port,baud)
 
 while True:
-    l = s.readLine()
+    l = s.readline()
 #    l = l.decode("utf-8")
     putFile.write(datetime.now(),"\t %s, \n" % (l))
