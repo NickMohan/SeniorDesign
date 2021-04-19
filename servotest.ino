@@ -2,31 +2,29 @@
 #include <Wire.h>
 
 //Digital pin numbers for pitch and roll
-#define PITCH_PIN 2
+#define CLAW_PIN 5
 
 //Initalize bno and servo motors
-Servo pitch;
+Servo claw;
 
 void setup() {
     //initalize serial monitor at 9600 baud
     delay(1000);
     Serial.begin(9600);
-    pitch.attach(PITCH_PIN);
-    pitch.write(0);
+    claw.attach(CLAW_PIN);
+    claw.write(0);
 
 }
 
 void loop() {
-   /* int pitchVal = 0;
+    int clawVal = 0;
 
-    for( ; pitchVal < 180; pitchVal += 15){
-        pitch.write(pitchVal);
+    for( ; clawVal < 180; clawVal += 15){
+        claw.write(clawVal);
     }
 
-    for( ; pitchVal >= 0; pitchVal -= 15){
-        pitch.write(pitchVal);
-    }*/
-  pitch.write(90);
+    for( ; clawVal > 0; clawVal -= 15){
+        claw.write(clawVal);
+    }
   delay(1000);
-  Serial.println("HELLO");
 }
