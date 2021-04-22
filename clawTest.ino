@@ -35,7 +35,7 @@ class ServoWrapper{
 public:
 
   ServoWrapper(){
-    clawVal = 90;
+    clawVal = 0;
     claw.attach(CLAW_PIN);
     updateServos();
   }
@@ -46,12 +46,12 @@ public:
 
   void relativeChangeClaw(int val){
     clawVal += val;
-    if(clawVal > 95){clawVal = 95;}
+    if(clawVal > 60){clawVal = 60;}
     if(clawVal < 0){clawVal = 0;}
     updateServos();
   }
   void closeClaw(){
-    clawVal = 180;
+    clawVal = 60;
     updateServos();
   }
   void openClaw(){
@@ -101,7 +101,8 @@ void loop() {
           }
         }
         else{
-          ser->closeClaw();
+          //ser->closeClaw();
+            ser->relativeChangeClaw(10);
         }
 
         //delay for servos to turn and BNO055 to process
